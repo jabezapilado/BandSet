@@ -1,27 +1,28 @@
 # Weekly Increment Report
 
-## Week of: September 21, 2026
+## Week of: September 28, 2026
 
 ## What changed this week
 
-- Converted the initial static BandSet wireframe pages into a React and Vite project.
-- Built functional Home, Songs, Setlists, and Setlist Details screens with reusable React components.
-- Added a responsive navigation menu and layouts that stack cards and song information on phone-width screens.
-- Applied the approved BandSet design-system colours, type scale, spacing tokens, and component patterns in the prototype.
-- Added project documentation in `README.md` and an `AI-USAGE.md` record.
+- Added an Express server with a tested `/api/health` route.
+- Added REST API routes for listing and creating songs, listing and creating setlists, and viewing one setlist with its ordered songs.
+- Added server-side validation for song and setlist input, including title, tempo, duration, and status checks.
+- Added PostgreSQL schema and seed files for `songs`, `setlists`, and `setlist_songs`.
+- Added an `.env.example`, backend setup instructions, API documentation, and a security checklist.
+- Added automated tests for backend input validation.
 
 ## Why
 
-These changes turn the approved planning work into an interactive first increment. The goal is to make the main BandSet user flow testable before adding data storage and complete forms.
+Week 1 created the React prototype and temporary in-browser data. This week begins the backend needed to make BandSet persistent: the API defines how the frontend will request data, and the database schema models songs, setlists, and the order of songs in each setlist.
 
 ## What broke or what I got stuck on
 
-The original project only contained static HTML and CSS, so it had to be converted before React components and interactive state could be used. The current app deliberately uses temporary in-browser state, which means newly added items disappear after refresh.
+The API starts and its health route works, but it is not connected to a hosted PostgreSQL database yet because the Supabase project and database connection string still need to be configured. The frontend also still reads from temporary React state, so it does not call the API yet.
 
 ## What is left
 
-- Add complete song and setlist create/edit forms.
-- Allow songs to be added to and reordered inside a setlist.
-- Connect persistent storage.
-- Test the final experience at desktop and phone widths.
-- Add screenshots of the running app and keep the documentation current.
+- Create and connect the Supabase PostgreSQL project.
+- Run the schema and seed data against the hosted database.
+- Replace the temporary frontend data with API requests.
+- Add full create, edit, delete, and setlist-song assignment flows.
+- Add authentication and access control before deployment.
