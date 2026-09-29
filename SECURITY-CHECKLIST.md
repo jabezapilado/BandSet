@@ -1,6 +1,6 @@
 # Security Checklist
 
-This checklist reflects the current Week 2 prototype. Items that depend on a deployed database, authentication, or GitHub Actions are marked N/A or No until those features exist.
+This checklist reflects the current Week 2 increment. Items that depend on authentication, deployment, or GitHub Actions are marked N/A or No until those features exist.
 
 ## Secrets and credentials
 
@@ -29,8 +29,8 @@ This checklist reflects the current Week 2 prototype. Items that depend on a dep
 | # | Check | Yes / No / N/A | Evidence |
 | --- | --- | --- | --- |
 | 13 | Queries that take user input use parameters | Yes | `server/app.js` passes user values through `$1`, `$2`, and later placeholders instead of string concatenation. |
-| 14 | The database is not open to the whole internet | N/A | A hosted database has not been connected yet. This will be checked when Supabase is configured. |
-| 15 | The database user has only needed permissions | N/A | A database user has not been created yet. |
+| 14 | The database is not open to the whole internet | Yes | The Supabase Data API is disabled. Database access requires the private connection string, which is kept only in local environment settings. |
+| 15 | The database user has only needed permissions | No | The development backend currently uses the Supabase `postgres` role. Create a limited application role before a public deployment. |
 | 16 | Seed data is invented | Yes | `db/seed.sql` contains only fictional song titles and notes for development. |
 | 17 | Debug, seed, and reset routes are removed before public release | Yes | The API has no debug, seed, or reset HTTP routes. |
 
@@ -39,7 +39,7 @@ This checklist reflects the current Week 2 prototype. Items that depend on a dep
 | # | Check | Yes / No / N/A | Evidence |
 | --- | --- | --- | --- |
 | 18 | The app has an access layer | No | Login or access control is not implemented in this prototype yet. |
-| 19 | Supabase Row Level Security or Firebase rules are enabled and tested signed out | N/A | Supabase has not been connected yet. |
+| 19 | Supabase Row Level Security or Firebase rules are enabled and tested signed out | Yes | RLS was enabled on `songs`, `setlists`, and `setlist_songs`; the Data API is disabled, so direct unsigned client access is unavailable. |
 | 20 | The required access policy is configured | N/A | No access gate exists yet. |
 | 21 | The gate covers every route | N/A | No access gate exists yet. |
 | 22 | Gate credentials are environment variables | N/A | No access gate exists yet. |
@@ -65,4 +65,4 @@ This checklist reflects the current Week 2 prototype. Items that depend on a dep
 
 ## Anything I found and fixed
 
-The checklist confirmed that database credentials need to be kept out of the repository before Supabase is connected. I added `.env.local` to `.gitignore` and committed only `.env.example` with placeholder values. I also added server-side validation, parameterized SQL queries, a generic error response, and a restricted development CORS origin before connecting the API to a database.
+The checklist confirmed that database credentials need to stay out of the repository. I committed only `.env.example` with placeholder values, enabled RLS on the Supabase tables, and left the Data API disabled. I also added server-side validation, parameterized SQL queries, a generic error response, and a restricted development CORS origin.

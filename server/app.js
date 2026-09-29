@@ -68,6 +68,36 @@ app.post('/api/setlists', async (request, response, next) => {
   }
 });
 
+app.post('/api/setlists/:id/songs', async (request, response, next) => {
+  const setlistId = Number(request.params.id);
+  const songId = Number(request.body.songId);
+  if (!Number.isInteger(setlistId) || setlistId < 1 || !Number.isInteger(songId) || songId < 1) {
+    return response.status(400).json({ error: 'setlist id and songId must be positive integers.' });
+  }
+
+  try {
+    const setlistResult = await query('SELECT id FROM setlists WHERE id = $1', [setlistId]);
+    const songResult = await query('SELECT id FROM songs WHERE id = $1', [songId]);
+    if (!setlistResult.rowCount || !songResult.rowCount) return response.status(404).json({ error: 'Song or setlist not found.' });
+
+    const positionResult = await query(
+      'SELECT COALESCE(MAX(position), 0) + 1 AS position FROM setlist_songs WHERE setlist_id = $1',
+      [setlistId],
+    );
+    const position = positionResult.rows[0].position;
+    const result = await query(
+      `INSERT INTO setlist_songs (setlist_id, song_id, position)
+       VALUES ($1, $2, $3)
+       RETURNING setlist_id AS "setlistId", song_id AS "songId", position`,
+      [setlistId, songId, position],
+    );
+    return response.status(201).json(result.rows[0]);
+  } catch (error) {
+    if (error.code === '23505') return response.status(409).json({ error: 'This song is already in the setlist.' });
+    return next(error);
+  }
+});
+
 app.get('/api/setlists/:id', async (request, response, next) => {
   const setlistId = Number(request.params.id);
   if (!Number.isInteger(setlistId) || setlistId < 1) return response.status(400).json({ error: 'setlist id must be a positive integer.' });

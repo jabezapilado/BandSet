@@ -6,7 +6,7 @@ BandSet is a responsive web app for musicians who want to keep a small song libr
 
 ## Setup and installation
 
-You will need Node.js 18 or later, npm, Git, and PostgreSQL access. BandSet is prepared to use a Supabase-hosted PostgreSQL database.
+You will need Node.js 18 or later, npm, Git, and PostgreSQL access. BandSet uses a Supabase-hosted PostgreSQL database.
 
 ```bash
 git clone https://github.com/jabezapilado/BandSet.git
@@ -24,17 +24,18 @@ cp .env.example .env
 
 ```env
 PORT=3001
+DB_SSL=true
 DATABASE_URL=postgresql://postgres:<password>@<host>:5432/postgres
 ```
 
-After PostgreSQL is connected, create the BandSet tables and sample data:
+The hosted BandSet project already has these tables and sample records. For a fresh database, run:
 
 ```bash
 psql "$DATABASE_URL" -f db/schema.sql
 psql "$DATABASE_URL" -f db/seed.sql
 ```
 
-The frontend currently still uses temporary React state. The Week 2 API and database schema are ready, but connecting the frontend to the live API is the next increment.
+The React frontend requests data from the API. It will show an error until the backend is running with a valid local `.env` database connection.
 
 ## Run the app
 
@@ -55,11 +56,12 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 ## Features and usage
 
 - **Home:** See the current number of songs and setlists, plus quick links to recent setlists.
-- **Songs:** Search the song library and use **Add song** to create a local placeholder song.
-- **Setlists:** View all setlists, create a local placeholder setlist, or select one to open it.
+- **Songs:** Search the song library and use **Add song** to save a song through the API.
+- **Setlists:** View all setlists, create one through the API, or select one to open it.
 - **Setlist details:** Review the songs in a setlist, select a song, and read its key, tempo, duration, status, and notes.
 - **Responsive layout:** At phone width, cards and song rows stack vertically and navigation becomes a simple menu.
-- **REST API foundation:** The Express server exposes validated song and setlist routes. Once the database connection is configured, the routes read and write PostgreSQL data.
+- **Setlist details:** Add an existing song to a selected setlist. The API assigns the next song position.
+- **REST API:** The Express server exposes validated song and setlist routes backed by PostgreSQL.
 
 ### API routes
 
@@ -71,13 +73,15 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 | `GET` | `/api/setlists` | Returns all setlists and song counts. |
 | `POST` | `/api/setlists` | Creates a validated setlist. |
 | `GET` | `/api/setlists/:id` | Returns one setlist with its ordered songs. |
+| `POST` | `/api/setlists/:id/songs` | Adds an existing song to a setlist at the next position. |
 
 ## Project structure
 
 ```text
 BandSet/
 ├── src/
-│   ├── App.jsx          # Screens, components, and local interaction state
+│   ├── App.jsx          # Screens, components, and API-driven interactions
+│   ├── api.js           # Browser requests to the Express API
 │   ├── main.jsx         # React entry point
 │   └── styles.css       # Design tokens and responsive styles
 ├── server/
@@ -106,7 +110,6 @@ BandSet/
 
 ## Known issues and next steps
 
-- The frontend still uses temporary React state, so added songs and setlists reset after a page refresh.
-- A Supabase PostgreSQL project and `DATABASE_URL` still need to be configured before the API can query live data.
-- The UI is not connected to the API yet, and full edit/delete forms plus setlist song assignment are not built.
+- You must add your private Supabase connection string to a local `.env` file before starting the backend. It must never be committed.
+- Full edit and delete flows are not built yet.
 - Authentication and access control are not implemented yet.

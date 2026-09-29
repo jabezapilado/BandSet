@@ -22,3 +22,9 @@ CREATE TABLE IF NOT EXISTS setlist_songs (
   PRIMARY KEY (setlist_id, song_id),
   UNIQUE (setlist_id, position)
 );
+
+-- The Express server connects with the database role. RLS also prevents
+-- accidental direct browser access if a Supabase Data API key is added later.
+ALTER TABLE songs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE setlists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE setlist_songs ENABLE ROW LEVEL SECURITY;
