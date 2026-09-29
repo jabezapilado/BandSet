@@ -34,7 +34,7 @@ All notable changes to BandSet are documented here. Dates reflect project work c
 - `npm test` succeeds.
 - The health, songs, and setlists API routes return successful responses against Supabase.
 
-## [2026-09-29] - Backend foundation
+## [2026-09-28 to 2026-09-29] - Backend foundation
 
 ### Added
 
@@ -43,7 +43,7 @@ All notable changes to BandSet are documented here. Dates reflect project work c
 - Validated REST routes for creating and listing songs and setlists, and reading a setlist with its songs.
 - Server-side validation tests, `.env.example`, and a security checklist.
 
-## [2026-09-28] - React prototype and planning
+## [2026-09-21] - React prototype and planning
 
 ### Added
 
