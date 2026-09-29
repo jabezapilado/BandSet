@@ -121,8 +121,21 @@ BandSet/
 
 ![BandSet home screen](docs/screenshots/home.png)
 
+## Deployment
+
+BandSet is configured for deployment on Vercel. The Vite frontend is served as static files and `api/[...path].js` exposes the Express API as a Vercel Function.
+
+In the Vercel project settings, add these **Production** environment variables:
+
+```env
+DATABASE_URL=your_private_supabase_session_pooler_connection_string
+DB_SSL=true
+```
+
+Do not add the local `.env` file to Git and do not use the `VITE_` prefix for `DATABASE_URL`; browser-visible Vite variables are included in the frontend build.
+
 ## Known issues and next steps
 
 - You must add your private Supabase connection string to a local `.env` file before starting the backend. It must never be committed.
 - Authentication and access control are not implemented yet.
-- The app is for local development only; deployment configuration and a limited production database role are still needed.
+- A limited production database role is still recommended before a public production release.
