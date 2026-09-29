@@ -62,8 +62,14 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 - **Setlist management:** Rename or delete a setlist, add songs to it, and remove individual songs while keeping the remaining order correct.
 - **Setlist details:** Review the songs in a setlist, select a song, and read its key, tempo, duration, status, and notes.
 - **Responsive layout:** At phone width, cards and song rows stack vertically and navigation becomes a simple menu.
-- **Setlist details:** Add an existing song to a selected setlist. The API assigns the next song position.
 - **REST API:** The Express server exposes validated song and setlist routes backed by PostgreSQL.
+
+### Main workflow
+
+1. Open **Songs** to add a song or search, edit, or delete an existing one.
+2. Open **Setlists** to create a setlist or select one.
+3. From **Setlist Details**, add an existing song. Select **Remove** to take it out while keeping the other songs in order.
+4. Refresh the browser after a change to confirm it was saved in PostgreSQL.
 
 ### API routes
 
@@ -118,5 +124,5 @@ BandSet/
 ## Known issues and next steps
 
 - You must add your private Supabase connection string to a local `.env` file before starting the backend. It must never be committed.
-- Full edit and delete flows are not built yet.
 - Authentication and access control are not implemented yet.
+- The app is for local development only; deployment configuration and a limited production database role are still needed.

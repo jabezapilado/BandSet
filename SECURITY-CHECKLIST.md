@@ -28,7 +28,7 @@ This checklist reflects the current Week 2 increment. Items that depend on authe
 
 | # | Check | Yes / No / N/A | Evidence |
 | --- | --- | --- | --- |
-| 13 | Queries that take user input use parameters | Yes | `server/app.js` passes user values through `$1`, `$2`, and later placeholders instead of string concatenation. |
+| 13 | Queries that take user input use parameters | Yes | Every song and setlist create, update, delete, and relationship query in `server/app.js` uses `$1`, `$2`, and later placeholders instead of string concatenation. |
 | 14 | The database is not open to the whole internet | Yes | The Supabase Data API is disabled. Database access requires the private connection string, which is kept only in local environment settings. |
 | 15 | The database user has only needed permissions | No | The development backend currently uses the Supabase `postgres` role. Create a limited application role before a public deployment. |
 | 16 | Seed data is invented | Yes | `db/seed.sql` contains only fictional song titles and notes for development. |

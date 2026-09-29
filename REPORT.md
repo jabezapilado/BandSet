@@ -11,6 +11,9 @@
 - Created the BandSet Supabase PostgreSQL project, ran the schema and seed data, and enabled Row Level Security on the tables.
 - Replaced temporary React data with API requests for songs and setlists.
 - Added the flow for adding an existing song to a setlist, with its position assigned by the API.
+- Added the full song management flow: create, edit, and delete songs. Deleting a song also removes its setlist entries.
+- Added the full setlist management flow: create, rename, and delete setlists, plus adding and removing individual songs.
+- Verified the song and setlist CRUD flows against Supabase PostgreSQL.
 - Added an `.env.example`, backend setup instructions, API documentation, and a security checklist.
 - Added automated tests for backend input validation.
 
@@ -20,10 +23,10 @@ Week 1 created the React prototype and temporary in-browser data. This week make
 
 ## What broke or what I got stuck on
 
-The hosted database is created, but the local backend still needs my private Supabase connection string in `.env` before I can run the full app against it. I do not want to put that password in Git. I also needed help understanding the Express route syntax and API structure.
+I first used Supabase's direct database connection, but my laptop could not resolve that host. I fixed it by using the Supabase session pooler connection string in my local `.env`. I also needed help understanding the Express route syntax and API structure. The database password stays only in `.env` and is not committed to Git.
 
 ## What is left
 
-- Add the private local database connection and verify the full frontend-to-API-to-database flow.
-- Add edit and delete flows.
+- Take final screenshots and test the whole workflow in the browser.
 - Add authentication and access control before deployment.
+- Review deployment settings and create a limited production database role.
