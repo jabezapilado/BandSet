@@ -57,6 +57,7 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 
 - **Home:** See the current number of songs and setlists, plus quick links to recent setlists.
 - **Songs:** Search the song library and use **Add song** to save a song through the API.
+- **Song management:** Edit or delete a song. Deleting it also removes it from any setlists that contain it.
 - **Setlists:** View all setlists, create one through the API, or select one to open it.
 - **Setlist details:** Review the songs in a setlist, select a song, and read its key, tempo, duration, status, and notes.
 - **Responsive layout:** At phone width, cards and song rows stack vertically and navigation becomes a simple menu.
@@ -70,6 +71,8 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 | `GET` | `/api/health` | Confirms that the API server is running. |
 | `GET` | `/api/songs` | Returns all songs. |
 | `POST` | `/api/songs` | Creates a validated song. |
+| `PUT` | `/api/songs/:id` | Updates a validated song. |
+| `DELETE` | `/api/songs/:id` | Deletes a song and its setlist entries. |
 | `GET` | `/api/setlists` | Returns all setlists and song counts. |
 | `POST` | `/api/setlists` | Creates a validated setlist. |
 | `GET` | `/api/setlists/:id` | Returns one setlist with its ordered songs. |

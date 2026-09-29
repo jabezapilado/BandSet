@@ -30,23 +30,29 @@ function SetlistCard({ setlist, onOpen }) {
   </button>;
 }
 
-function SongRow({ song, onSelect, selected, position, controls }) {
-  return <button className={selected ? 'song-row selected' : 'song-row'} onClick={() => onSelect(song)}>
-    <span className="song-title">{position ? `${position}. ${song.title}` : song.title}<small>Key: {song.key ?? '—'} · {formatDuration(song.durationSeconds)}</small></span>
-    <span className="song-meta">{song.key ?? '—'}</span><span className="song-meta">{song.bpm ? `${song.bpm} BPM` : '—'}</span>
-    <span className="song-status">{song.status}</span>{controls && <span className="song-controls">{position}</span>}
-  </button>;
+function SongRow({ song, onSelect, selected, position, onEdit, onDelete }) {
+  return <div className={selected ? 'song-row selected' : 'song-row'}>
+    <button className="song-select" onClick={() => onSelect(song)}>
+      <span className="song-title">{position ? `${position}. ${song.title}` : song.title}<small>Key: {song.key ?? '—'} · {formatDuration(song.durationSeconds)}</small></span>
+      <span className="song-meta">{song.key ?? '—'}</span><span className="song-meta">{song.bpm ? `${song.bpm} BPM` : '—'}</span>
+      <span className="song-status">{song.status}</span>{position && <span className="song-controls">{position}</span>}
+    </button>
+    {(onEdit || onDelete) && <div className="row-actions" aria-label={`Actions for ${song.title}`}>
+      <button className="small-button" onClick={() => onEdit(song)}>Edit</button>
+      <button className="small-button danger-button" onClick={() => onDelete(song)}>Delete</button>
+    </div>}
+  </div>;
 }
 
-function SongForm({ onSave, onCancel, saving }) {
-  const [form, setForm] = useState({ title: '', key: '', bpm: '', durationSeconds: '', status: 'Draft', notes: '' });
+function SongForm({ song, onSave, onCancel, saving }) {
+  const [form, setForm] = useState(() => ({ title: song?.title ?? '', key: song?.key ?? '', bpm: song?.bpm ?? '', durationSeconds: song?.durationSeconds ?? '', status: song?.status ?? 'Draft', notes: song?.notes ?? '' }));
   function update(event) { setForm((current) => ({ ...current, [event.target.name]: event.target.value })); }
   function submit(event) {
     event.preventDefault();
     onSave({ ...form, bpm: form.bpm === '' ? null : Number(form.bpm), durationSeconds: form.durationSeconds === '' ? null : Number(form.durationSeconds) });
   }
   return <form className="entry-form" onSubmit={submit}>
-    <h2>Add a song</h2>
+    <h2>{song ? 'Edit song' : 'Add a song'}</h2>
     <label>Song title<input required name="title" value={form.title} onChange={update} maxLength="120" /></label>
     <div className="form-grid">
       <label>Key<input name="key" value={form.key} onChange={update} maxLength="8" placeholder="E" /></label>
@@ -55,7 +61,7 @@ function SongForm({ onSave, onCancel, saving }) {
       <label>Status<select name="status" value={form.status} onChange={update}><option>Draft</option><option>Learning</option><option>Rehearsing</option><option>Ready</option></select></label>
     </div>
     <label>Notes<textarea name="notes" value={form.notes} onChange={update} maxLength="1000" placeholder="Optional rehearsal notes" /></label>
-    <div className="form-actions"><button type="button" className="secondary-button" onClick={onCancel}>Cancel</button><button className="primary-button" disabled={saving}>{saving ? 'Saving…' : 'Save song'}</button></div>
+    <div className="form-actions"><button type="button" className="secondary-button" onClick={onCancel}>Cancel</button><button className="primary-button" disabled={saving}>{saving ? 'Saving…' : song ? 'Update song' : 'Save song'}</button></div>
   </form>;
 }
 
@@ -75,6 +81,7 @@ export default function App() {
   const [selectedSong, setSelectedSong] = useState(null);
   const [query, setQuery] = useState('');
   const [showSongForm, setShowSongForm] = useState(false);
+  const [editingSong, setEditingSong] = useState(null);
   const [showSetlistForm, setShowSetlistForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -102,10 +109,34 @@ export default function App() {
     } catch (loadError) { setError(loadError.message); }
   }
 
-  async function createSong(song) {
+  async function saveSong(song) {
     setSaving(true); setError('');
-    try { const created = await api.createSong(song); setSongs((current) => [...current, created].sort((a, b) => a.title.localeCompare(b.title))); setShowSongForm(false); setSelectedSong(created); }
+    try {
+      const saved = editingSong ? await api.updateSong(editingSong.id, song) : await api.createSong(song);
+      setSongs((current) => (editingSong ? current.map((item) => item.id === saved.id ? saved : item) : [...current, saved]).sort((a, b) => a.title.localeCompare(b.title)));
+      setSelectedSong(saved); setShowSongForm(false); setEditingSong(null);
+      if (selectedSetlist?.songs.some((item) => item.id === saved.id)) {
+        setSelectedSetlist((current) => ({ ...current, songs: current.songs.map((item) => item.id === saved.id ? { ...item, ...saved } : item) }));
+      }
+    }
     catch (saveError) { setError(saveError.message); } finally { setSaving(false); }
+  }
+
+  function beginSongEdit(song) { setEditingSong(song); setShowSongForm(true); }
+
+  async function deleteSong(song) {
+    if (!window.confirm(`Delete “${song.title}”? It will also be removed from every setlist.`)) return;
+    setSaving(true); setError('');
+    try {
+      await api.deleteSong(song.id);
+      setSongs((current) => current.filter((item) => item.id !== song.id));
+      if (selectedSong?.id === song.id) setSelectedSong(null);
+      const nextSetlists = await api.listSetlists(); setSetlists(nextSetlists);
+      if (selectedSetlist?.songs.some((item) => item.id === song.id)) {
+        const refreshed = await api.getSetlist(selectedSetlist.id);
+        setSelectedSetlist(refreshed);
+      }
+    } catch (deleteError) { setError(deleteError.message); } finally { setSaving(false); }
   }
 
   async function createSetlist(setlist) {
@@ -143,11 +174,11 @@ export default function App() {
         </section>}
 
         {page === 'Songs' && <section className="page-section">
-          <div className="page-title-row"><div><p className="eyebrow">Your music library</p><h1>Songs</h1></div><button className="primary-button" onClick={() => setShowSongForm(true)}>+ Add song</button></div>
-          {showSongForm && <SongForm onSave={createSong} onCancel={() => setShowSongForm(false)} saving={saving} />}
+          <div className="page-title-row"><div><p className="eyebrow">Your music library</p><h1>Songs</h1></div><button className="primary-button" onClick={() => { setEditingSong(null); setShowSongForm(true); }}>+ Add song</button></div>
+          {showSongForm && <SongForm key={editingSong?.id ?? 'new'} song={editingSong} onSave={saveSong} onCancel={() => { setShowSongForm(false); setEditingSong(null); }} saving={saving} />}
           <label className="search-label" htmlFor="song-search">Search songs</label><input id="song-search" className="search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search songs..." />
           <div className="song-list" aria-label="Song library"><div className="song-list-head"><span>Song</span><span>Key</span><span>BPM</span><span>Status</span></div>
-            {visibleSongs.length ? visibleSongs.map((song) => <SongRow key={song.id} song={song} selected={song.id === selectedSong?.id} onSelect={setSelectedSong} />) : <p className="empty-state">No songs match that search.</p>}
+            {visibleSongs.length ? visibleSongs.map((song) => <SongRow key={song.id} song={song} selected={song.id === selectedSong?.id} onSelect={setSelectedSong} onEdit={beginSongEdit} onDelete={deleteSong} />) : <p className="empty-state">No songs match that search.</p>}
           </div>
         </section>}
 
@@ -162,7 +193,7 @@ export default function App() {
           <div className="page-title-row"><div><p className="eyebrow">Setlist details</p><h1>{selectedSetlist.title}</h1><p className="intro">{selectedSetlist.songs.length} songs · Approx. {Math.floor(selectedSetlist.songs.reduce((total, song) => total + (song.durationSeconds ?? 0), 0) / 60)} min</p></div></div>
           {availableSongs.length > 0 && <form className="add-to-setlist" onSubmit={addSongToCurrentSetlist}><label>Add existing song<select required name="songId" defaultValue=""><option value="" disabled>Select a song</option>{availableSongs.map((song) => <option key={song.id} value={song.id}>{song.title}</option>)}</select></label><button className="primary-button" disabled={saving}>{saving ? 'Adding…' : 'Add song'}</button></form>}
           <div className="details-layout"><div className="song-list setlist-songs"><div className="song-list-head"><span>Song</span><span>Key</span><span>BPM</span><span>Status</span><span>Order</span></div>
-            {selectedSetlist.songs.length ? selectedSetlist.songs.map((song) => <SongRow key={song.id} song={song} position={song.position} selected={song.id === selectedSong?.id} onSelect={setSelectedSong} controls />) : <p className="empty-state">This setlist has no songs yet.</p>}
+            {selectedSetlist.songs.length ? selectedSetlist.songs.map((song) => <SongRow key={song.id} song={song} position={song.position} selected={song.id === selectedSong?.id} onSelect={setSelectedSong} />) : <p className="empty-state">This setlist has no songs yet.</p>}
           </div>
           <aside className="song-detail" aria-label="Selected song details">{selectedSong ? <><p className="eyebrow">Selected song</p><h2>{selectedSong.title}</h2><dl><div><dt>Key</dt><dd>{selectedSong.key ?? '—'}</dd></div><div><dt>BPM</dt><dd>{selectedSong.bpm ?? '—'}</dd></div><div><dt>Duration</dt><dd>{formatDuration(selectedSong.durationSeconds)}</dd></div><div><dt>Status</dt><dd>{selectedSong.status}</dd></div><div><dt>Notes</dt><dd>{selectedSong.notes || 'No notes yet.'}</dd></div></dl></> : <p className="empty-state">Select a song to see details.</p>}</aside></div>
         </section>}

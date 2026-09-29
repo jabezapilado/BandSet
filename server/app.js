@@ -41,6 +41,42 @@ app.post('/api/songs', async (request, response, next) => {
   }
 });
 
+app.put('/api/songs/:id', async (request, response, next) => {
+  const songId = Number(request.params.id);
+  if (!Number.isInteger(songId) || songId < 1) return response.status(400).json({ error: 'song id must be a positive integer.' });
+
+  const validated = validateSong(request.body);
+  if (validated.error) return response.status(400).json({ error: validated.error });
+
+  try {
+    const song = validated.value;
+    const result = await query(
+      `UPDATE songs
+       SET title = $1, song_key = $2, bpm = $3, duration_seconds = $4, status = $5, notes = $6
+       WHERE id = $7
+       RETURNING id, title, song_key AS key, bpm, duration_seconds AS "durationSeconds", status, notes`,
+      [song.title, song.key, song.bpm, song.durationSeconds, song.status, song.notes, songId],
+    );
+    if (!result.rowCount) return response.status(404).json({ error: 'Song not found.' });
+    return response.json(result.rows[0]);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/songs/:id', async (request, response, next) => {
+  const songId = Number(request.params.id);
+  if (!Number.isInteger(songId) || songId < 1) return response.status(400).json({ error: 'song id must be a positive integer.' });
+
+  try {
+    const result = await query('DELETE FROM songs WHERE id = $1 RETURNING id', [songId]);
+    if (!result.rowCount) return response.status(404).json({ error: 'Song not found.' });
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.get('/api/setlists', async (_request, response, next) => {
   try {
     const result = await query(

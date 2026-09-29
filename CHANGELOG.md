@@ -6,9 +6,16 @@ All notable changes to BandSet are documented here. Dates reflect project work c
 
 ### Next
 
-- Add edit and delete flows for songs and setlists.
+- Add edit and delete flows for setlists.
+- Allow removing an individual song from a setlist.
 - Add authentication and access control before deployment.
 - Test the complete workflow and prepare final screenshots.
+
+### Added
+
+- Added edit and delete controls for songs.
+- Added validated `PUT /api/songs/:id` and `DELETE /api/songs/:id` routes.
+- Verified the song create, update, and delete flow against Supabase.
 
 ## [2026-09-30] - Supabase integration
 
