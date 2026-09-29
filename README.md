@@ -59,6 +59,7 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 - **Songs:** Search the song library and use **Add song** to save a song through the API.
 - **Song management:** Edit or delete a song. Deleting it also removes it from any setlists that contain it.
 - **Setlists:** View all setlists, create one through the API, or select one to open it.
+- **Setlist management:** Rename or delete a setlist, add songs to it, and remove individual songs while keeping the remaining order correct.
 - **Setlist details:** Review the songs in a setlist, select a song, and read its key, tempo, duration, status, and notes.
 - **Responsive layout:** At phone width, cards and song rows stack vertically and navigation becomes a simple menu.
 - **Setlist details:** Add an existing song to a selected setlist. The API assigns the next song position.
@@ -75,8 +76,11 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 | `DELETE` | `/api/songs/:id` | Deletes a song and its setlist entries. |
 | `GET` | `/api/setlists` | Returns all setlists and song counts. |
 | `POST` | `/api/setlists` | Creates a validated setlist. |
+| `PUT` | `/api/setlists/:id` | Renames a validated setlist. |
+| `DELETE` | `/api/setlists/:id` | Deletes a setlist and its song entries. |
 | `GET` | `/api/setlists/:id` | Returns one setlist with its ordered songs. |
 | `POST` | `/api/setlists/:id/songs` | Adds an existing song to a setlist at the next position. |
+| `DELETE` | `/api/setlists/:id/songs/:songId` | Removes a song and closes the position gap. |
 
 ## Project structure
 

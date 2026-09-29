@@ -104,6 +104,35 @@ app.post('/api/setlists', async (request, response, next) => {
   }
 });
 
+app.put('/api/setlists/:id', async (request, response, next) => {
+  const setlistId = Number(request.params.id);
+  if (!Number.isInteger(setlistId) || setlistId < 1) return response.status(400).json({ error: 'setlist id must be a positive integer.' });
+
+  const validated = validateSetlist(request.body);
+  if (validated.error) return response.status(400).json({ error: validated.error });
+
+  try {
+    const result = await query('UPDATE setlists SET title = $1 WHERE id = $2 RETURNING id, title', [validated.value.title, setlistId]);
+    if (!result.rowCount) return response.status(404).json({ error: 'Setlist not found.' });
+    return response.json(result.rows[0]);
+  } catch (error) {
+    return next(error);
+  }
+});
+
+app.delete('/api/setlists/:id', async (request, response, next) => {
+  const setlistId = Number(request.params.id);
+  if (!Number.isInteger(setlistId) || setlistId < 1) return response.status(400).json({ error: 'setlist id must be a positive integer.' });
+
+  try {
+    const result = await query('DELETE FROM setlists WHERE id = $1 RETURNING id', [setlistId]);
+    if (!result.rowCount) return response.status(404).json({ error: 'Setlist not found.' });
+    return response.status(204).end();
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.post('/api/setlists/:id/songs', async (request, response, next) => {
   const setlistId = Number(request.params.id);
   const songId = Number(request.body.songId);
@@ -130,6 +159,26 @@ app.post('/api/setlists/:id/songs', async (request, response, next) => {
     return response.status(201).json(result.rows[0]);
   } catch (error) {
     if (error.code === '23505') return response.status(409).json({ error: 'This song is already in the setlist.' });
+    return next(error);
+  }
+});
+
+app.delete('/api/setlists/:id/songs/:songId', async (request, response, next) => {
+  const setlistId = Number(request.params.id);
+  const songId = Number(request.params.songId);
+  if (!Number.isInteger(setlistId) || setlistId < 1 || !Number.isInteger(songId) || songId < 1) {
+    return response.status(400).json({ error: 'setlist id and song id must be positive integers.' });
+  }
+
+  try {
+    const result = await query(
+      'DELETE FROM setlist_songs WHERE setlist_id = $1 AND song_id = $2 RETURNING position',
+      [setlistId, songId],
+    );
+    if (!result.rowCount) return response.status(404).json({ error: 'Song is not in this setlist.' });
+    await query('UPDATE setlist_songs SET position = position - 1 WHERE setlist_id = $1 AND position > $2', [setlistId, result.rows[0].position]);
+    return response.status(204).end();
+  } catch (error) {
     return next(error);
   }
 });

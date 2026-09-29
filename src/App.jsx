@@ -24,22 +24,27 @@ function Header({ page, onNavigate }) {
   </div></header>;
 }
 
-function SetlistCard({ setlist, onOpen }) {
-  return <button className="setlist-card" onClick={onOpen}>
-    <strong>{setlist.title}</strong><span>{setlist.songCount} {setlist.songCount === 1 ? 'song' : 'songs'}</span><small>Open setlist →</small>
-  </button>;
+function SetlistCard({ setlist, onOpen, onEdit, onDelete }) {
+  return <article className="setlist-card">
+    <button className="setlist-open" onClick={onOpen}><strong>{setlist.title}</strong><span>{setlist.songCount} {setlist.songCount === 1 ? 'song' : 'songs'}</span><small>Open setlist →</small></button>
+    {(onEdit || onDelete) && <div className="card-actions" aria-label={`Actions for ${setlist.title}`}>
+      <button className="small-button" onClick={() => onEdit(setlist)}>Edit</button>
+      <button className="small-button danger-button" onClick={() => onDelete(setlist)}>Delete</button>
+    </div>}
+  </article>;
 }
 
-function SongRow({ song, onSelect, selected, position, onEdit, onDelete }) {
+function SongRow({ song, onSelect, selected, position, onEdit, onDelete, onRemove }) {
   return <div className={selected ? 'song-row selected' : 'song-row'}>
     <button className="song-select" onClick={() => onSelect(song)}>
       <span className="song-title">{position ? `${position}. ${song.title}` : song.title}<small>Key: {song.key ?? '—'} · {formatDuration(song.durationSeconds)}</small></span>
       <span className="song-meta">{song.key ?? '—'}</span><span className="song-meta">{song.bpm ? `${song.bpm} BPM` : '—'}</span>
       <span className="song-status">{song.status}</span>{position && <span className="song-controls">{position}</span>}
     </button>
-    {(onEdit || onDelete) && <div className="row-actions" aria-label={`Actions for ${song.title}`}>
-      <button className="small-button" onClick={() => onEdit(song)}>Edit</button>
-      <button className="small-button danger-button" onClick={() => onDelete(song)}>Delete</button>
+    {(onEdit || onDelete || onRemove) && <div className="row-actions" aria-label={`Actions for ${song.title}`}>
+      {onEdit && <button className="small-button" onClick={() => onEdit(song)}>Edit</button>}
+      {onDelete && <button className="small-button danger-button" onClick={() => onDelete(song)}>Delete</button>}
+      {onRemove && <button className="small-button danger-button" onClick={() => onRemove(song)}>Remove</button>}
     </div>}
   </div>;
 }
@@ -65,11 +70,11 @@ function SongForm({ song, onSave, onCancel, saving }) {
   </form>;
 }
 
-function SetlistForm({ onSave, onCancel, saving }) {
-  const [title, setTitle] = useState('');
+function SetlistForm({ setlist, onSave, onCancel, saving }) {
+  const [title, setTitle] = useState(setlist?.title ?? '');
   return <form className="entry-form compact-form" onSubmit={(event) => { event.preventDefault(); onSave({ title }); }}>
-    <h2>New setlist</h2><label>Setlist title<input required value={title} onChange={(event) => setTitle(event.target.value)} maxLength="120" /></label>
-    <div className="form-actions"><button type="button" className="secondary-button" onClick={onCancel}>Cancel</button><button className="primary-button" disabled={saving}>{saving ? 'Saving…' : 'Save setlist'}</button></div>
+    <h2>{setlist ? 'Edit setlist' : 'New setlist'}</h2><label>Setlist title<input required value={title} onChange={(event) => setTitle(event.target.value)} maxLength="120" /></label>
+    <div className="form-actions"><button type="button" className="secondary-button" onClick={onCancel}>Cancel</button><button className="primary-button" disabled={saving}>{saving ? 'Saving…' : setlist ? 'Update setlist' : 'Save setlist'}</button></div>
   </form>;
 }
 
@@ -83,6 +88,7 @@ export default function App() {
   const [showSongForm, setShowSongForm] = useState(false);
   const [editingSong, setEditingSong] = useState(null);
   const [showSetlistForm, setShowSetlistForm] = useState(false);
+  const [editingSetlist, setEditingSetlist] = useState(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -139,10 +145,31 @@ export default function App() {
     } catch (deleteError) { setError(deleteError.message); } finally { setSaving(false); }
   }
 
-  async function createSetlist(setlist) {
+  async function saveSetlist(setlist) {
     setSaving(true); setError('');
-    try { const created = await api.createSetlist(setlist); setSetlists((current) => [...current, created].sort((a, b) => a.title.localeCompare(b.title))); setShowSetlistForm(false); await openSetlist(created); }
+    try {
+      const saved = editingSetlist ? await api.updateSetlist(editingSetlist.id, setlist) : await api.createSetlist(setlist);
+      setSetlists((current) => (editingSetlist ? current.map((item) => item.id === saved.id ? { ...item, ...saved } : item) : [...current, saved]).sort((a, b) => a.title.localeCompare(b.title)));
+      if (editingSetlist) {
+        setSelectedSetlist((current) => current?.id === saved.id ? { ...current, ...saved } : current);
+        setShowSetlistForm(false); setEditingSetlist(null);
+      } else {
+        setShowSetlistForm(false); await openSetlist(saved);
+      }
+    }
     catch (saveError) { setError(saveError.message); } finally { setSaving(false); }
+  }
+
+  function beginSetlistEdit(setlist) { setEditingSetlist(setlist); setShowSetlistForm(true); }
+
+  async function deleteSetlist(setlist) {
+    if (!window.confirm(`Delete “${setlist.title}” and its song list?`)) return;
+    setSaving(true); setError('');
+    try {
+      await api.deleteSetlist(setlist.id);
+      setSetlists((current) => current.filter((item) => item.id !== setlist.id));
+      if (selectedSetlist?.id === setlist.id) { setSelectedSetlist(null); setSelectedSong(null); setPage('Setlists'); }
+    } catch (deleteError) { setError(deleteError.message); } finally { setSaving(false); }
   }
 
   async function addSongToCurrentSetlist(event) {
@@ -157,6 +184,17 @@ export default function App() {
       const nextSetlists = await api.listSetlists(); setSetlists(nextSetlists);
       event.currentTarget.reset();
     } catch (saveError) { setError(saveError.message); } finally { setSaving(false); }
+  }
+
+  async function removeSongFromCurrentSetlist(song) {
+    if (!selectedSetlist || !window.confirm(`Remove “${song.title}” from this setlist?`)) return;
+    setSaving(true); setError('');
+    try {
+      await api.removeSongFromSetlist(selectedSetlist.id, song.id);
+      const [refreshed, nextSetlists] = await Promise.all([api.getSetlist(selectedSetlist.id), api.listSetlists()]);
+      setSelectedSetlist(refreshed); setSetlists(nextSetlists);
+      setSelectedSong((current) => current?.id === song.id ? refreshed.songs[0] ?? null : current);
+    } catch (removeError) { setError(removeError.message); } finally { setSaving(false); }
   }
 
   const availableSongs = selectedSetlist ? songs.filter((song) => !selectedSetlist.songs.some((setlistSong) => setlistSong.id === song.id)) : [];
@@ -183,9 +221,9 @@ export default function App() {
         </section>}
 
         {page === 'Setlists' && <section className="page-section">
-          <div className="page-title-row"><div><p className="eyebrow">Plan your performance</p><h1>Setlists</h1></div><button className="primary-button" onClick={() => setShowSetlistForm(true)}>+ New setlist</button></div>
-          {showSetlistForm && <SetlistForm onSave={createSetlist} onCancel={() => setShowSetlistForm(false)} saving={saving} />}
-          <div className="setlist-grid all-setlists">{setlists.map((setlist) => <SetlistCard key={setlist.id} setlist={setlist} onOpen={() => openSetlist(setlist)} />)}</div>
+          <div className="page-title-row"><div><p className="eyebrow">Plan your performance</p><h1>Setlists</h1></div><button className="primary-button" onClick={() => { setEditingSetlist(null); setShowSetlistForm(true); }}>+ New setlist</button></div>
+          {showSetlistForm && <SetlistForm key={editingSetlist?.id ?? 'new'} setlist={editingSetlist} onSave={saveSetlist} onCancel={() => { setShowSetlistForm(false); setEditingSetlist(null); }} saving={saving} />}
+          <div className="setlist-grid all-setlists">{setlists.map((setlist) => <SetlistCard key={setlist.id} setlist={setlist} onOpen={() => openSetlist(setlist)} onEdit={beginSetlistEdit} onDelete={deleteSetlist} />)}</div>
         </section>}
 
         {page === 'Setlist Details' && selectedSetlist && <section className="page-section">
@@ -193,7 +231,7 @@ export default function App() {
           <div className="page-title-row"><div><p className="eyebrow">Setlist details</p><h1>{selectedSetlist.title}</h1><p className="intro">{selectedSetlist.songs.length} songs · Approx. {Math.floor(selectedSetlist.songs.reduce((total, song) => total + (song.durationSeconds ?? 0), 0) / 60)} min</p></div></div>
           {availableSongs.length > 0 && <form className="add-to-setlist" onSubmit={addSongToCurrentSetlist}><label>Add existing song<select required name="songId" defaultValue=""><option value="" disabled>Select a song</option>{availableSongs.map((song) => <option key={song.id} value={song.id}>{song.title}</option>)}</select></label><button className="primary-button" disabled={saving}>{saving ? 'Adding…' : 'Add song'}</button></form>}
           <div className="details-layout"><div className="song-list setlist-songs"><div className="song-list-head"><span>Song</span><span>Key</span><span>BPM</span><span>Status</span><span>Order</span></div>
-            {selectedSetlist.songs.length ? selectedSetlist.songs.map((song) => <SongRow key={song.id} song={song} position={song.position} selected={song.id === selectedSong?.id} onSelect={setSelectedSong} />) : <p className="empty-state">This setlist has no songs yet.</p>}
+            {selectedSetlist.songs.length ? selectedSetlist.songs.map((song) => <SongRow key={song.id} song={song} position={song.position} selected={song.id === selectedSong?.id} onSelect={setSelectedSong} onRemove={removeSongFromCurrentSetlist} />) : <p className="empty-state">This setlist has no songs yet.</p>}
           </div>
           <aside className="song-detail" aria-label="Selected song details">{selectedSong ? <><p className="eyebrow">Selected song</p><h2>{selectedSong.title}</h2><dl><div><dt>Key</dt><dd>{selectedSong.key ?? '—'}</dd></div><div><dt>BPM</dt><dd>{selectedSong.bpm ?? '—'}</dd></div><div><dt>Duration</dt><dd>{formatDuration(selectedSong.durationSeconds)}</dd></div><div><dt>Status</dt><dd>{selectedSong.status}</dd></div><div><dt>Notes</dt><dd>{selectedSong.notes || 'No notes yet.'}</dd></div></dl></> : <p className="empty-state">Select a song to see details.</p>}</aside></div>
         </section>}
