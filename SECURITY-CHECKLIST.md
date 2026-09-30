@@ -1,6 +1,6 @@
 # Security Checklist
 
-This checklist reflects the current Week 2 increment. Items that depend on authentication, deployment, or GitHub Actions are marked N/A or No until those features exist.
+This checklist reflects the current BandSet deployment. Items that depend on GitHub Actions or future production hardening are marked N/A or No with their reason.
 
 ## Secrets and credentials
 
@@ -38,11 +38,11 @@ This checklist reflects the current Week 2 increment. Items that depend on authe
 
 | # | Check | Yes / No / N/A | Evidence |
 | --- | --- | --- | --- |
-| 18 | The app has an access layer | No | Login or access control is not implemented in this prototype yet. |
+| 18 | The app has an access layer | Yes | `middleware.js` requires HTTP Basic Authentication before Vercel serves the frontend or API; `server/access.js` applies the same check to API routes. |
 | 19 | Supabase Row Level Security or Firebase rules are enabled and tested signed out | Yes | RLS was enabled on `songs`, `setlists`, and `setlist_songs`; the Data API is disabled, so direct unsigned client access is unavailable. |
-| 20 | The required access policy is configured | N/A | No access gate exists yet. |
-| 21 | The gate covers every route | N/A | No access gate exists yet. |
-| 22 | Gate credentials are environment variables | N/A | No access gate exists yet. |
+| 20 | The required access policy is configured | Yes | Vercel Production variables `ACCESS_USERNAME` and `ACCESS_PASSWORD` configure the Basic Auth login. |
+| 21 | The gate covers every route | Yes | The root-level Vercel middleware matches `/:path*`, covering static frontend files and `/api/*`; Express also protects its routes. |
+| 22 | Gate credentials are environment variables | Yes | Credentials are read from environment variables and are not present in source code, `.env.example`, or Git history. |
 
 ## Input and output
 
@@ -65,4 +65,4 @@ This checklist reflects the current Week 2 increment. Items that depend on authe
 
 ## Anything I found and fixed
 
-The checklist confirmed that database credentials need to stay out of the repository. I committed only `.env.example` with placeholder values, enabled RLS on the Supabase tables, and left the Data API disabled. I also added server-side validation, parameterized SQL queries, a generic error response, and a restricted development CORS origin.
+The checklist confirmed that database and access credentials need to stay out of the repository. I committed only `.env.example` with placeholders, enabled RLS on the Supabase tables, left the Data API disabled, and added an environment-variable-based HTTP Basic Auth gate for Vercel. I also use server-side validation, parameterized SQL queries, a generic error response, and a restricted development CORS origin.

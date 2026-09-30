@@ -130,9 +130,11 @@ In the Vercel project settings, add these **Production** environment variables:
 ```env
 DATABASE_URL=your_private_supabase_session_pooler_connection_string
 DB_SSL=true
+ACCESS_USERNAME=your_private_username
+ACCESS_PASSWORD=your_private_password
 ```
 
-Do not add the local `.env` file to Git and do not use the `VITE_` prefix for `DATABASE_URL`; browser-visible Vite variables are included in the frontend build.
+The deployed app uses HTTP Basic Authentication. Store its username and password only in Vercel and in the private workspace repository where the instructor can access them. Do not add the local `.env` file to Git and do not use the `VITE_` prefix for any server-side secret; browser-visible Vite variables are included in the frontend build.
 
 ## Known issues and next steps
 

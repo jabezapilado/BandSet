@@ -18,6 +18,8 @@ All notable changes to BandSet are documented here. Dates reflect project work c
 - Added a remove control for individual songs inside a setlist.
 - Added validated setlist update, deletion, and remove-song API routes.
 - Verified the setlist create, update, add-song, remove-song, and delete flows against Supabase.
+- Added an app-wide Vercel HTTP Basic Auth gate and matching Express API middleware.
+- Added documented access environment-variable placeholders without committing credential values.
 
 ## [2026-09-30] - Supabase integration
 

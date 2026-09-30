@@ -14,6 +14,7 @@
 - Added the full song management flow: create, edit, and delete songs. Deleting a song also removes its setlist entries.
 - Added the full setlist management flow: create, rename, and delete setlists, plus adding and removing individual songs.
 - Verified the song and setlist CRUD flows against Supabase PostgreSQL.
+- Added HTTP Basic Authentication to protect the deployed frontend and API before the repository becomes public.
 - Added an `.env.example`, backend setup instructions, API documentation, and a security checklist.
 - Added automated tests for backend input validation.
 
@@ -28,5 +29,5 @@ I first used Supabase's direct database connection, but my laptop could not reso
 ## What is left
 
 - Take final screenshots and test the whole workflow in the browser.
-- Add authentication and access control before deployment.
+- Confirm the deployed Basic Auth prompt works and store grading credentials only in the private workspace README.
 - Review deployment settings and create a limited production database role.

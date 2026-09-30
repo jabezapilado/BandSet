@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from 'express';
+import { requireBasicAuth } from './access.js';
 import { query } from './db.js';
 import { validateSetlist, validateSong } from './validation.js';
 
@@ -7,6 +8,7 @@ const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
+app.use(requireBasicAuth);
 
 app.get('/api/health', (_request, response) => {
   response.json({ status: 'ok' });
