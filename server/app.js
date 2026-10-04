@@ -8,7 +8,10 @@ const app = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
-app.use(requireBasicAuth);
+
+// Vercel's root middleware protects every deployed request, including the API.
+// Keep the Express check for a locally hosted API when access variables are set.
+if (!process.env.VERCEL) app.use(requireBasicAuth);
 
 app.get('/api/health', (_request, response) => {
   response.json({ status: 'ok' });

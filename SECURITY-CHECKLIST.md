@@ -38,7 +38,7 @@ This checklist reflects the current BandSet deployment. Items that depend on Git
 
 | # | Check | Yes / No / N/A | Evidence |
 | --- | --- | --- | --- |
-| 18 | The app has an access layer | Yes | `middleware.js` requires HTTP Basic Authentication before Vercel serves the frontend or API; `server/access.js` applies the same check to API routes. |
+| 18 | The app has an access layer | Yes | `middleware.js` requires HTTP Basic Authentication before Vercel serves the frontend or API. `server/access.js` provides the same optional protection for a locally hosted API. |
 | 19 | Supabase Row Level Security or Firebase rules are enabled and tested signed out | Yes | RLS was enabled on `songs`, `setlists`, and `setlist_songs`; the Data API is disabled, so direct unsigned client access is unavailable. |
 | 20 | The required access policy is configured | Yes | Vercel Production variables `ACCESS_USERNAME` and `ACCESS_PASSWORD` configure the Basic Auth login. |
 | 21 | The gate covers every route | Yes | The root-level Vercel middleware matches `/:path*`, covering static frontend files and `/api/*`; Express also protects its routes. |
