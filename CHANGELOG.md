@@ -20,6 +20,7 @@ All notable changes to BandSet are documented here. Dates reflect project work c
 - Verified the setlist create, update, add-song, remove-song, and delete flows against Supabase.
 - Added an app-wide Vercel HTTP Basic Auth gate and matching Express API middleware.
 - Added documented access environment-variable placeholders without committing credential values.
+- Added explicit Vercel Function entry points for nested API routes.
 
 ## [2026-09-30] - Supabase integration
 
