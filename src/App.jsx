@@ -72,8 +72,10 @@ function SongForm({ song, onSave, onCancel, saving }) {
 
 function SetlistForm({ setlist, onSave, onCancel, saving }) {
   const [title, setTitle] = useState(setlist?.title ?? '');
-  return <form className="entry-form compact-form" onSubmit={(event) => { event.preventDefault(); onSave({ title }); }}>
+  const [description, setDescription] = useState(setlist?.description ?? '');
+  return <form className="entry-form compact-form" onSubmit={(event) => { event.preventDefault(); onSave({ title, description }); }}>
     <h2>{setlist ? 'Edit setlist' : 'New setlist'}</h2><label>Setlist title<input required value={title} onChange={(event) => setTitle(event.target.value)} maxLength="120" /></label>
+    <label>Setlist description<textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength="1000" placeholder="Optional performance notes, venue details, or set goals" /></label>
     <div className="form-actions"><button type="button" className="secondary-button" onClick={onCancel}>Cancel</button><button className="primary-button" disabled={saving}>{saving ? 'Saving…' : setlist ? 'Update setlist' : 'Save setlist'}</button></div>
   </form>;
 }
@@ -228,7 +230,7 @@ export default function App() {
 
         {page === 'Setlist Details' && selectedSetlist && <section className="page-section">
           <button className="back-button" onClick={() => setPage('Setlists')}>← All setlists</button>
-          <div className="page-title-row"><div><p className="eyebrow">Setlist details</p><h1>{selectedSetlist.title}</h1><p className="intro">{selectedSetlist.songs.length} songs · Approx. {Math.floor(selectedSetlist.songs.reduce((total, song) => total + (song.durationSeconds ?? 0), 0) / 60)} min</p></div></div>
+          <div className="page-title-row"><div><p className="eyebrow">Setlist details</p><h1>{selectedSetlist.title}</h1><p className="intro">{selectedSetlist.songs.length} songs · Approx. {Math.floor(selectedSetlist.songs.reduce((total, song) => total + (song.durationSeconds ?? 0), 0) / 60)} min</p>{selectedSetlist.description && <p className="setlist-description">{selectedSetlist.description}</p>}</div></div>
           {availableSongs.length > 0 && <form className="add-to-setlist" onSubmit={addSongToCurrentSetlist}><label>Add existing song<select required name="songId" defaultValue=""><option value="" disabled>Select a song</option>{availableSongs.map((song) => <option key={song.id} value={song.id}>{song.title}</option>)}</select></label><button className="primary-button" disabled={saving}>{saving ? 'Adding…' : 'Add song'}</button></form>}
           <div className="details-layout"><div className="song-list setlist-songs"><div className="song-list-head"><span>Song</span><span>Key</span><span>BPM</span><span>Status</span><span>Order</span></div>
             {selectedSetlist.songs.length ? selectedSetlist.songs.map((song) => <SongRow key={song.id} song={song} position={song.position} selected={song.id === selectedSong?.id} onSelect={setSelectedSong} onRemove={removeSongFromCurrentSetlist} />) : <p className="empty-state">This setlist has no songs yet.</p>}

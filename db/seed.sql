@@ -5,8 +5,10 @@ VALUES
   ('Midnight Drive', 'A', 98, 235, 'Learning', 'Work on the guitar lead.')
 ON CONFLICT (title) DO NOTHING;
 
-INSERT INTO setlists (title)
-VALUES ('Friday Night Set'), ('Studio Session')
+INSERT INTO setlists (title, description)
+VALUES
+  ('Friday Night Set', 'Main performance set. Start with the full-band intro and leave time for the encore.'),
+  ('Studio Session', 'Songs to rehearse before the next recording session.')
 ON CONFLICT (title) DO NOTHING;
 
 INSERT INTO setlist_songs (setlist_id, song_id, position)

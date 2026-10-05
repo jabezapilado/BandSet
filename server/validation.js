@@ -32,5 +32,7 @@ export function validateSong(input) {
 export function validateSetlist(input) {
   const title = typeof input.title === 'string' ? input.title.trim() : '';
   if (!title || title.length > 120) return { error: 'title is required and must be 120 characters or fewer.' };
-  return { value: { title } };
+  const description = optionalString(input.description, 'description', 1000);
+  if (description.error) return { error: description.error };
+  return { value: { title, description: description.value } };
 }

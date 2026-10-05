@@ -60,9 +60,9 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 - **Home:** See the current number of songs and setlists, plus quick links to recent setlists.
 - **Songs:** Search the song library and use **Add song** to save a song through the API.
 - **Song management:** Edit or delete a song. Deleting it also removes it from any setlists that contain it.
-- **Setlists:** View all setlists, create one through the API, or select one to open it.
-- **Setlist management:** Rename or delete a setlist, add songs to it, and remove individual songs while keeping the remaining order correct.
-- **Setlist details:** Review the songs in a setlist, select a song, and read its key, tempo, duration, status, and notes.
+- **Setlists:** View all setlists, create one with an optional description, or select one to open it.
+- **Setlist management:** Rename, describe, or delete a setlist; add songs to it; and remove individual songs while keeping the remaining order correct.
+- **Setlist details:** Review a setlist description and its songs, select a song, and read its key, tempo, duration, status, and notes.
 - **Responsive layout:** At phone width, cards and song rows stack vertically and navigation becomes a simple menu.
 - **REST API:** The Express server exposes validated song and setlist routes backed by PostgreSQL.
 

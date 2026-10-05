@@ -85,10 +85,10 @@ app.delete('/api/songs/:id', async (request, response, next) => {
 app.get('/api/setlists', async (_request, response, next) => {
   try {
     const result = await query(
-      `SELECT setlists.id, setlists.title, COUNT(setlist_songs.song_id)::int AS "songCount"
+      `SELECT setlists.id, setlists.title, setlists.description, COUNT(setlist_songs.song_id)::int AS "songCount"
        FROM setlists
        LEFT JOIN setlist_songs ON setlist_songs.setlist_id = setlists.id
-       GROUP BY setlists.id
+       GROUP BY setlists.id, setlists.title, setlists.description
        ORDER BY setlists.title ASC`,
     );
     response.json(result.rows);
@@ -102,7 +102,10 @@ app.post('/api/setlists', async (request, response, next) => {
   if (validated.error) return response.status(400).json({ error: validated.error });
 
   try {
-    const result = await query('INSERT INTO setlists (title) VALUES ($1) RETURNING id, title', [validated.value.title]);
+    const result = await query(
+      'INSERT INTO setlists (title, description) VALUES ($1, $2) RETURNING id, title, description',
+      [validated.value.title, validated.value.description],
+    );
     return response.status(201).json({ ...result.rows[0], songCount: 0 });
   } catch (error) {
     return next(error);
@@ -117,7 +120,10 @@ app.put('/api/setlists/:id', async (request, response, next) => {
   if (validated.error) return response.status(400).json({ error: validated.error });
 
   try {
-    const result = await query('UPDATE setlists SET title = $1 WHERE id = $2 RETURNING id, title', [validated.value.title, setlistId]);
+    const result = await query(
+      'UPDATE setlists SET title = $1, description = $2 WHERE id = $3 RETURNING id, title, description',
+      [validated.value.title, validated.value.description, setlistId],
+    );
     if (!result.rowCount) return response.status(404).json({ error: 'Setlist not found.' });
     return response.json(result.rows[0]);
   } catch (error) {
@@ -193,7 +199,7 @@ app.get('/api/setlists/:id', async (request, response, next) => {
   if (!Number.isInteger(setlistId) || setlistId < 1) return response.status(400).json({ error: 'setlist id must be a positive integer.' });
 
   try {
-    const setlistResult = await query('SELECT id, title FROM setlists WHERE id = $1', [setlistId]);
+    const setlistResult = await query('SELECT id, title, description FROM setlists WHERE id = $1', [setlistId]);
     if (!setlistResult.rowCount) return response.status(404).json({ error: 'Setlist not found.' });
 
     const songsResult = await query(

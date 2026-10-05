@@ -18,3 +18,14 @@ test('rejects an unknown song status', () => {
 test('requires a setlist title', () => {
   assert.equal(validateSetlist({ title: '   ' }).error, 'title is required and must be 120 characters or fewer.');
 });
+
+test('accepts an optional setlist description', () => {
+  assert.deepEqual(
+    validateSetlist({ title: 'Friday Night Set', description: '  Outdoor stage; plan an encore.  ' }),
+    { value: { title: 'Friday Night Set', description: 'Outdoor stage; plan an encore.' } },
+  );
+});
+
+test('rejects a setlist description longer than 1000 characters', () => {
+  assert.equal(validateSetlist({ title: 'Friday Night Set', description: 'a'.repeat(1001) }).error, 'description must be text with at most 1000 characters.');
+});

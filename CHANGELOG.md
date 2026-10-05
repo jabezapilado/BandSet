@@ -11,6 +11,8 @@ All notable changes to BandSet are documented here. Dates reflect project work c
 
 ### Added
 
+- Added an optional setlist description field, displayed on the setlist-details screen for performance notes and context.
+- Added server-side validation and a safe PostgreSQL schema upgrade for setlist descriptions.
 - Added edit and delete controls for songs.
 - Added validated `PUT /api/songs/:id` and `DELETE /api/songs/:id` routes.
 - Verified the song create, update, and delete flow against Supabase.

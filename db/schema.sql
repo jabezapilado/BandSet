@@ -12,8 +12,13 @@ CREATE TABLE IF NOT EXISTS songs (
 CREATE TABLE IF NOT EXISTS setlists (
   id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   title TEXT NOT NULL UNIQUE,
+  description TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- This also upgrades an existing BandSet database created before setlist
+-- descriptions were added. It is safe to run more than once.
+ALTER TABLE setlists ADD COLUMN IF NOT EXISTS description TEXT;
 
 CREATE TABLE IF NOT EXISTS setlist_songs (
   setlist_id BIGINT NOT NULL REFERENCES setlists(id) ON DELETE CASCADE,
