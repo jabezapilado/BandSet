@@ -26,7 +26,7 @@ function Header({ page, onNavigate }) {
 
 function SetlistCard({ setlist, onOpen, onEdit, onDelete }) {
   return <article className="setlist-card">
-    <button className="setlist-open" onClick={onOpen}><strong>{setlist.title}</strong><span>{setlist.songCount} {setlist.songCount === 1 ? 'song' : 'songs'}</span><small>Open setlist →</small></button>
+    <button className="setlist-open" onClick={onOpen}><strong>{setlist.title}</strong>{setlist.description && <p className="setlist-card-description">{setlist.description}</p>}<span>{setlist.songCount} {setlist.songCount === 1 ? 'song' : 'songs'}</span><small>Open setlist →</small></button>
     {(onEdit || onDelete) && <div className="card-actions" aria-label={`Actions for ${setlist.title}`}>
       <button className="small-button" onClick={() => onEdit(setlist)}>Edit</button>
       <button className="small-button danger-button" onClick={() => onDelete(setlist)}>Delete</button>
