@@ -24,6 +24,11 @@ All notable changes to BandSet are documented here. Dates reflect project work c
 - Added documented access environment-variable placeholders without committing credential values.
 - Added explicit Vercel Function entry points for nested API routes.
 
+### Changed
+
+- Updated Express to 4.22.3 after the final dependency audit; `npm audit --omit=dev` now reports zero production vulnerabilities.
+- Corrected the README and security checklist to reflect the deployed Basic Auth gate and Vercel setup.
+
 ## [2026-09-30] - Supabase integration
 
 ### Added

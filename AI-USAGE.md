@@ -60,6 +60,14 @@ This is an honest record of how I used OpenAI Codex while building BandSet. I de
 - **Why:** A public URL with write/delete routes needs a gate, and local success is not enough when the deployed version fails.
 - **Commits:** [1b0c1d3 — Protect deployed app with basic authentication](https://github.com/jabezapilado/BandSet/commit/1b0c1d3), [3e2561b — Fix authenticated setlist detail requests](https://github.com/jabezapilado/BandSet/commit/3e2561b), [4e6ac6d — Fix nested Vercel API routes](https://github.com/jabezapilado/BandSet/commit/4e6ac6d)
 
+### 2026-10-09 — OpenAI Codex: Final security and documentation review
+
+- **What I asked:** I asked Codex to help run final build, test, dependency-audit, live-access, and documentation checks before submission.
+- **What it gave back:** It identified an outdated Express dependency chain, corrected stale deployment documentation, and suggested non-destructive checks for credentials and the authenticated deployment.
+- **What I kept or changed:** I accepted the compatible Express 4.22.3 update after the production audit reported zero vulnerabilities, and I reviewed the corrected documentation and live access result.
+- **Why:** The project needed a final check that the deployed app, repository, and documentation matched each other.
+- **Commit:** [37c688a — Complete final security and documentation review](https://github.com/jabezapilado/BandSet/commit/37c688a)
+
 ## 2. Where AI got it wrong
 
 ### Direct Supabase connection did not work on my network
