@@ -2,7 +2,7 @@
 
 [![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
 
-> **AI-assisted project:** I used OpenAI Codex for syntax support, scaffolding, debugging, and documentation. I designed the application logic and database relationships, reviewed and tested the work, and recorded the collaboration in [AI-USAGE.md](AI-USAGE.md).
+> **AI-assisted project:** I used OpenAI Codex extensively for syntax support, scaffolding, debugging, and documentation. I designed the application logic and database relationships, reviewed and tested the work, and recorded the collaboration in [AI-USAGE.md](AI-USAGE.md).
 
 BandSet is a responsive web app for musicians who want to keep a small song library and organize songs into setlists. It gives a band member a simple home view, searchable song list, setlist planner, and a focused screen for reviewing the details of a selected song.
 
