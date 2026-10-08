@@ -84,7 +84,7 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 | `DELETE` | `/api/songs/:id` | Deletes a song and its setlist entries. |
 | `GET` | `/api/setlists` | Returns all setlists and song counts. |
 | `POST` | `/api/setlists` | Creates a validated setlist. |
-| `PUT` | `/api/setlists/:id` | Renames a validated setlist. |
+| `PUT` | `/api/setlists/:id` | Updates a validated setlist title and optional description. |
 | `DELETE` | `/api/setlists/:id` | Deletes a setlist and its song entries. |
 | `GET` | `/api/setlists/:id` | Returns one setlist with its ordered songs. |
 | `POST` | `/api/setlists/:id/songs` | Adds an existing song to a setlist at the next position. |
@@ -107,11 +107,13 @@ BandSet/
 ├── db/
 │   ├── schema.sql       # Songs, setlists, and setlist_songs tables
 │   └── seed.sql         # Invented development data
+├── api/                 # Vercel Function entry points for API routes
 ├── test/
 │   └── validation.test.js
 ├── .env.example
 ├── index.html
 ├── package.json
+├── middleware.js         # Vercel-wide HTTP Basic Authentication gate
 ├── README.md
 ├── REPORT.md
 └── AI-USAGE.md
@@ -125,7 +127,7 @@ BandSet/
 
 ## Deployment
 
-BandSet is configured for deployment on Vercel. The Vite frontend is served as static files and `api/[...path].js` exposes the Express API as a Vercel Function.
+BandSet is configured for deployment on Vercel. The Vite frontend is served as static files and the files in `api/` expose the Express API as Vercel Functions, including nested setlist routes.
 
 In the Vercel project settings, add these **Production** environment variables:
 
@@ -141,5 +143,5 @@ The deployed app uses HTTP Basic Authentication. Store its username and password
 ## Known issues and next steps
 
 - You must add your private Supabase connection string to a local `.env` file before starting the backend. It must never be committed.
-- Authentication and access control are not implemented yet.
+- The deployment uses a shared HTTP Basic Auth gate for grading access. It is not a multi-user account system.
 - A limited production database role is still recommended before a public production release.

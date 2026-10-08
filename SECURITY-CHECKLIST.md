@@ -11,7 +11,7 @@ This checklist reflects the current BandSet deployment. Items that depend on Git
 | 3 | No connection string, key, token, or password is hardcoded | Yes | `server/db.js` reads `DATABASE_URL` from the environment; source files contain no live credentials. |
 | 4 | Git history is clean | Yes | The existing Git history was checked for credential-related terms; only placeholder setup values are used. |
 | 5 | Any credential ever committed has been rotated | N/A | No real database credential has been created or committed. |
-| 6 | Production credentials live only in hosting settings | N/A | The app is not deployed yet. |
+| 6 | Production credentials live only in hosting settings | Yes | Vercel Production environment variables hold `DATABASE_URL`, `DB_SSL`, `ACCESS_USERNAME`, and `ACCESS_PASSWORD`; no values are committed. |
 
 ## GitHub Actions
 
@@ -61,8 +61,8 @@ This checklist reflects the current BandSet deployment. Items that depend on Git
 | 28 | No classmate personal data is in the repository | Yes | Seed data and documentation use only project content and fictional sample songs. |
 | 29 | Dependencies come from official registries and `node_modules` is gitignored | Yes | Dependencies are installed through npm and `.gitignore` includes `node_modules/`. |
 | 30 | Images, fonts, and assets are mine, licensed, or credited | Yes | The app uses system fonts and a self-captured application screenshot; no third-party visual assets are included. |
-| 31 | Repository visibility is deliberate | No | I need to do a final visibility review before making the final deployment public. |
+| 31 | Repository visibility is deliberate | Pending owner review | Confirm GitHub repository visibility and instructor access before submitting the final URL. |
 
 ## Anything I found and fixed
 
-The checklist confirmed that database and access credentials need to stay out of the repository. I committed only `.env.example` with placeholders, enabled RLS on the Supabase tables, left the Data API disabled, and added an environment-variable-based HTTP Basic Auth gate for Vercel. I also use server-side validation, parameterized SQL queries, a generic error response, and a restricted development CORS origin.
+The checklist confirmed that database and access credentials need to stay out of the repository. I committed only `.env.example` with placeholders, enabled RLS on the Supabase tables, left the Data API disabled, and added an environment-variable-based HTTP Basic Auth gate for Vercel. I also use server-side validation, parameterized SQL queries, a generic error response, and a restricted development CORS origin. On 2026-10-09, a Git-history credential-pattern scan found no live credential patterns, and `npm audit --omit=dev` reported no production dependency vulnerabilities.
