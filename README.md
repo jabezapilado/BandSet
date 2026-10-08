@@ -75,20 +75,20 @@ The API starts at `http://localhost:3001`. You can confirm it is running by open
 
 ### API routes
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `GET` | `/api/health` | Confirms that the API server is running. |
-| `GET` | `/api/songs` | Returns all songs. |
-| `POST` | `/api/songs` | Creates a validated song. |
-| `PUT` | `/api/songs/:id` | Updates a validated song. |
-| `DELETE` | `/api/songs/:id` | Deletes a song and its setlist entries. |
-| `GET` | `/api/setlists` | Returns all setlists and song counts. |
-| `POST` | `/api/setlists` | Creates a validated setlist. |
-| `PUT` | `/api/setlists/:id` | Updates a validated setlist title and optional description. |
-| `DELETE` | `/api/setlists/:id` | Deletes a setlist and its song entries. |
-| `GET` | `/api/setlists/:id` | Returns one setlist with its ordered songs. |
-| `POST` | `/api/setlists/:id/songs` | Adds an existing song to a setlist at the next position. |
-| `DELETE` | `/api/setlists/:id/songs/:songId` | Removes a song and closes the position gap. |
+| Method   | Path                              | Purpose                                                     |
+| -------- | --------------------------------- | ----------------------------------------------------------- |
+| `GET`    | `/api/health`                     | Confirms that the API server is running.                    |
+| `GET`    | `/api/songs`                      | Returns all songs.                                          |
+| `POST`   | `/api/songs`                      | Creates a validated song.                                   |
+| `PUT`    | `/api/songs/:id`                  | Updates a validated song.                                   |
+| `DELETE` | `/api/songs/:id`                  | Deletes a song and its setlist entries.                     |
+| `GET`    | `/api/setlists`                   | Returns all setlists and song counts.                       |
+| `POST`   | `/api/setlists`                   | Creates a validated setlist.                                |
+| `PUT`    | `/api/setlists/:id`               | Updates a validated setlist title and optional description. |
+| `DELETE` | `/api/setlists/:id`               | Deletes a setlist and its song entries.                     |
+| `GET`    | `/api/setlists/:id`               | Returns one setlist with its ordered songs.                 |
+| `POST`   | `/api/setlists/:id/songs`         | Adds an existing song to a setlist at the next position.    |
+| `DELETE` | `/api/setlists/:id/songs/:songId` | Removes a song and closes the position gap.                 |
 
 ## Project structure
 
@@ -125,6 +125,18 @@ BandSet/
 
 ![BandSet home screen](docs/screenshots/home.png)
 
+### Songs screen
+
+![BandSet songs screen](docs/screenshots/songs.png)
+
+### Setlists screen
+
+![BandSet setlists screen](docs/screenshots/setlists.png)
+
+### Setlist details screen
+
+![BandSet setlist details screen](docs/screenshots/setlist-details.png)
+
 ## Deployment
 
 BandSet is configured for deployment on Vercel. The Vite frontend is served as static files and the files in `api/` expose the Express API as Vercel Functions, including nested setlist routes.
@@ -145,3 +157,10 @@ The deployed app uses HTTP Basic Authentication. Store its username and password
 - You must add your private Supabase connection string to a local `.env` file before starting the backend. It must never be committed.
 - The deployment uses a shared HTTP Basic Auth gate for grading access. It is not a multi-user account system.
 - A limited production database role is still recommended before a public production release.
+
+## BandSet grading access
+
+Live app: https://bandset.vercel.app/
+
+Username: root
+Password: root1234
